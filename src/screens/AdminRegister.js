@@ -6,13 +6,14 @@ import styles from "../styles/styling";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ReturnButtons from "../components/returnButtons"; 
 
-const Register = ({navigation}) => {
+const AdminRegister = ({navigation}) => {
   const codered = require("../../assets/codered.png");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [currentAddress, setCurrentAddress] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [checked, setChecked] = useState(false);
@@ -72,7 +73,7 @@ const Register = ({navigation}) => {
           <ReturnButtons onPress={() => navigation.goBack()} />
           <Image source={codered} style={[styles.logoImage, { width: 150, height: 150, marginTop: 0 }]} />
           <Text style={[styles.headingTitle, { textAlign: 'center' }]}>
-            Join Us, Pulse!
+            Admin Registration
           </Text>
           <Text style={{
             color: 'black',
@@ -82,7 +83,7 @@ const Register = ({navigation}) => {
             textAlign: 'center',
             marginTop: 1
             }}>
-            Join Code Red to help save lives by donating blood or connecting donors with those in urgent need!
+            Register your Admin ID to create your Administrator account.
             </Text>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -192,6 +193,16 @@ const Register = ({navigation}) => {
               style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
             />
             <TextInput
+              placeholder="ADMIN ID"
+              value={username}
+              mode="outlined"
+              activeOutlineColor="red"
+              outlineColor="red"
+              textColor="red"
+              onChangeText={setUsername}
+              style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
+            />
+            <TextInput
               placeholder="EMAIL"
               value={email}
               mode="outlined"
@@ -204,6 +215,25 @@ const Register = ({navigation}) => {
             <TextInput
               placeholder="PASSWORD"
               value={password}
+              mode="outlined"
+              activeOutlineColor="red"
+              outlineColor="red"
+              textColor="red"
+              secureTextEntry={!isPasswordVisible}
+              onChangeText={setPassword}
+              right={
+                <TextInput.Icon 
+                  icon={isPasswordVisible ? "eye-off" : "eye"} 
+                  color="red" 
+                  onPress={togglePasswordVisibility} 
+                />
+              }
+              style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
+            />
+
+            <TextInput
+              placeholder="CONFIRM PASSWORD"
+              value={confirmPassword}
               mode="outlined"
               activeOutlineColor="red"
               outlineColor="red"
@@ -258,6 +288,6 @@ const Register = ({navigation}) => {
   );
 };
 
-export default Register;
+export default AdminRegister;
 
 const registerStyle = StyleSheet.create(styles);

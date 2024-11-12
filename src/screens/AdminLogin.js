@@ -11,7 +11,7 @@ const AdminLogin = ({ navigation }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoginPressed, setIsLoginPressed] = useState(false);
   const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
-  const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const [isAdminRegisterPressed, setIsAdminRegisterPressed] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const footer = require("../../assets/gradient.png");
 
@@ -101,7 +101,7 @@ const AdminLogin = ({ navigation }) => {
         <View style={{ alignItems: 'center' }}>
           <Button
             mode="elevated"
-            onPress={() => navigation.navigate("Profile")}
+            onPress={() => navigation.navigate("AdminDashboard")}
             onPressIn={() => setIsLoginPressed(true)} 
             onPressOut={() => setIsLoginPressed(false)} 
             labelStyle={{
@@ -133,12 +133,12 @@ const AdminLogin = ({ navigation }) => {
             <View style={{ alignItems: 'center' }}>
               <Button
                 mode="elevated"
-                onPress={() => navigation.navigate("Register")}
-                onPressIn={() => setIsRegisterPressed(true)} 
-                onPressOut={() => setIsRegisterPressed(false)}
+                onPress={() => navigation.navigate("AdminRegister")}
+                onPressIn={() => setIsAdminRegisterPressed(true)} 
+                onPressOut={() => setIsAdminRegisterPressed(false)}
                 labelStyle={{ fontSize: 18, textAlign: 'center', color: 'white', fontFamily: "PoppinsBold" }} 
                 style={{
-                  backgroundColor: isRegisterPressed ? "#83d6f4" : "#1dc5fd",
+                  backgroundColor: isAdminRegisterPressed ? "#83d6f4" : "#1dc5fd",
                   paddingVertical: 7,
                   paddingHorizontal: 5,
                   margin: 10,

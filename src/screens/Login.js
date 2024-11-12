@@ -101,7 +101,7 @@ const Login = ({ navigation }) => {
         <View style={{ alignItems: 'center' }}>
           <Button
             mode="elevated"
-            onPress={() => navigation.navigate("Profile")}
+            onPress={() => navigation.navigate("Home")}
             onPressIn={() => setIsLoginPressed(true)} 
             onPressOut={() => setIsLoginPressed(false)} 
             labelStyle={{

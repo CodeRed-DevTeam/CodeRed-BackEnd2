@@ -8,6 +8,10 @@ import Register from "./src/screens/Register";
 import Profile from "./src/screens/Profile";
 import Portal from "./src/screens/Portal";
 import AdminLogin from "./src/screens/AdminLogin";
+import AdminRegister from "./src/screens/AdminRegister";
+import AdminDashboard from "./src/screens/AdminDashboard";
+import Home from "./src/screens/Home";
+import AdminRecoverPass from "./src/screens/AdminRecoverPass";
 import { useFonts } from "expo-font";
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +31,9 @@ export default function App({navigation}) {
         <Stack.Screen name="Portal" component={Portal} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="AdminLogin" component={AdminLogin} />
+        <Stack.Screen name="AdminRegister" component={AdminRegister} />
+        <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+        <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="RecoverPass" component={RecoverPass} />
         <Stack.Screen name="Register" component={Register} />
