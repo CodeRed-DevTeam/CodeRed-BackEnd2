@@ -4,6 +4,8 @@ import styles from "../styles/styling";
 import { TextInput, Button } from "react-native-paper";
 import {Ionicons} from "@expo/vector-icons"; 
 import ReturnButtons from "../components/returnButtons"; 
+import { supabase } from '../../src/SupaBase/Database';
+import { Alert } from "react-native";
 
 const AdminLogin = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -33,6 +35,35 @@ const AdminLogin = ({ navigation }) => {
       keyboardDidHideListener.remove();
     };
   }, []);
+
+  
+  const handleLogin = async () => {
+    setIsLoginPressed(true);
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      setIsLoginPressed(false);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        Alert.alert("Login Failed", error.message);
+      } else {
+        Alert.alert("Success", "You are now logged in!");
+        navigation.navigate("Home"); 
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setIsLoginPressed(false);
+    }
+  };
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -101,7 +132,7 @@ const AdminLogin = ({ navigation }) => {
         <View style={{ alignItems: 'center' }}>
           <Button
             mode="elevated"
-            onPress={() => navigation.navigate("AdminDashboard")}
+            onPress={handleLogin}
             onPressIn={() => setIsLoginPressed(true)} 
             onPressOut={() => setIsLoginPressed(false)} 
             labelStyle={{
