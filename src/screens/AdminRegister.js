@@ -331,7 +331,7 @@ const AdminRegister = ({navigation}) => {
           <View style={{ alignItems: 'center' }}>
             <Button
               mode="elevated"
-              onPress={() => navigation.navigate("Login")}
+              onPress={handleRegister}
               onPressIn={() => setIsRegisterPressed(true)}
               onPressOut={() => setIsRegisterPressed(false)}
               buttonColor={isRegisterPressed ? "#ff8e92" : "red"}
