@@ -5,6 +5,9 @@ import { TextInput, Button, Checkbox, RadioButton } from "react-native-paper";
 import styles from "../styles/styling";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ReturnButtons from "../components/returnButtons"; 
+import { supabase } from '../../src/SupaBase/Database';
+import { Alert } from "react-native";
+
 
 const Register = ({navigation}) => {
   const codered = require("../../assets/codered.png");
@@ -12,6 +15,9 @@ const Register = ({navigation}) => {
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [currentAddress, setCurrentAddress] = useState("");
+  const [country, setCountry] = useState("");
+const [region, setRegion] = useState("");
+const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,25 +31,27 @@ const Register = ({navigation}) => {
   const [dateOfBirth, setDateOfBirth] = useState("");
 
   const handleDateChange = (input) => {
-
     const cleanedInput = input.replace(/\D/g, '');
-
-
+  
     let formattedInput = '';
-
+  
     if (cleanedInput.length >= 2) {
-      formattedInput += cleanedInput.slice(0, 2) + '/';
+      formattedInput = cleanedInput.slice(0, 2) + '/';
     }
     if (cleanedInput.length >= 4) {
       formattedInput += cleanedInput.slice(2, 4) + '/';
-      formattedInput += cleanedInput.slice(4, 8); 
+    }
+  
+    if (cleanedInput.length >= 6) {
+      formattedInput += cleanedInput.slice(4, 8);
     } else if (cleanedInput.length > 2) {
       formattedInput += cleanedInput.slice(2);
     }
-
-    setDateOfBirth(formattedInput);
+  
+    if (formattedInput !== dateOfBirth) {
+      setDateOfBirth(formattedInput);
+    }
   };
-
 
   const handlePhoneNumberChange = (input) => {
 
@@ -60,6 +68,66 @@ const Register = ({navigation}) => {
   const toggleConfirmPasswordVisibility = () => {
     setIsConfirmPasswordVisible(prevState => !prevState);
   };
+
+  const handleRegister = async () => {
+    // Validate form fields
+    if (!firstName || !lastName || !phoneNumber || !currentAddress || !country || !region || !city || !email || !password || !confirmPassword || !gender || !dateOfBirth) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+  
+    // Password mismatch validation
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+  
+    // Check if Terms and Conditions checkbox is checked
+    if (!checked) {
+      Alert.alert("Error", "Please agree to the Terms and Conditions");
+      return;
+    }
+  
+    try {
+      // Attempt to register the user
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+  
+      if (error) {
+        Alert.alert("Registration Error", error.message);
+        return;
+      }
+  
+      // Insert the user data into your database
+      const { error: dbError } = await supabase
+        .from('users')
+        .insert([
+          {
+            first_name: firstName,
+            last_name: lastName,
+            phone_number: phoneNumber,
+            address: currentAddress,
+            email,
+            gender,
+            date_of_birth: dateOfBirth,
+          },
+        ]);
+  
+      if (dbError) {
+        Alert.alert("Database Error", dbError.message);
+        return;
+      }
+  
+      // If registration is successful, navigate to the Login screen
+      Alert.alert("Success", "You have successfully registered!");
+      navigation.navigate("Login");
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
+  
 
   return (
     <SafeAreaProvider>
@@ -161,36 +229,39 @@ const Register = ({navigation}) => {
               style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
               maxLength={10} // Limit input to 10 characters
             />
-            <TextInput
+           <TextInput
               placeholder="COUNTRY"
-              value={currentAddress}
+              value={country}
               mode="outlined"
               activeOutlineColor="red"
               outlineColor="red"
               textColor="red"
-              onChangeText={setCurrentAddress}
+              onChangeText={setCountry}
               style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
             />
+
             <TextInput
               placeholder="REGION"
-              value={currentAddress}
+              value={region}
               mode="outlined"
               activeOutlineColor="red"
               outlineColor="red"
               textColor="red"
-              onChangeText={setCurrentAddress}
+              onChangeText={setRegion}
               style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
             />
+
             <TextInput
               placeholder="CITY"
-              value={currentAddress}
+              value={city}
               mode="outlined"
               activeOutlineColor="red"
               outlineColor="red"
               textColor="red"
-              onChangeText={setCurrentAddress}
+              onChangeText={setCity}
               style={[registerStyle.textInput, { fontFamily: "PoppinsBold" }]}
             />
+
             <TextInput
               placeholder="EMAIL"
               value={email}
@@ -237,16 +308,16 @@ const Register = ({navigation}) => {
           </View>
 
           <View style={{ alignItems: 'center' }}>
-            <Button
-              mode="elevated"
-              onPress={() => navigation.navigate("Login")}
-              onPressIn={() => setIsRegisterPressed(true)}
-              onPressOut={() => setIsRegisterPressed(false)}
-              buttonColor={isRegisterPressed ? "#ff8e92" : "red"}
-              labelStyle={{ fontSize: 18, textAlign: 'center', color: 'white', fontFamily: "PoppinsBold" }} 
-              style={{ paddingVertical: 7, paddingHorizontal: 5, margin: 10, borderRadius: 5, width: 290, height: 50, marginBottom:120 }}
-            >
-              PROCEED
+          <Button
+            mode="elevated"
+            onPress={handleRegister}
+            onPressIn={() => setIsRegisterPressed(true)}
+            onPressOut={() => setIsRegisterPressed(false)}
+            buttonColor={isRegisterPressed ? "#ff8e92" : "red"}
+            labelStyle={{ fontSize: 18, textAlign: 'center', color: 'white', fontFamily: "PoppinsBold" }} 
+            style={{ paddingVertical: 7, paddingHorizontal: 5, margin: 10, borderRadius: 5, width: 290, height: 50, marginBottom:120 }} 
+          >
+            PROCEED
             </Button>
           </View>
             <View style={[styles.footerContainer, { position: 'absolute', bottom: 0, left: 0, right: 0, zIndex:-1 }]}>
