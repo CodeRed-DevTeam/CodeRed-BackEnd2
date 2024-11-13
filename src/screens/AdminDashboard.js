@@ -5,7 +5,7 @@ import styles from "../styles/styling";
 import { Button} from "react-native-paper";
 import {Ionicons} from "@expo/vector-icons"; 
 
-const Home = ({ navigation }) => {
+const AdminDashboard = ({ navigation }) => {
   const footer = require("../../assets/gradient.png");
   const codered = require("../../assets/codered.png");
   const [isUserPressed, setIsUserPressed] = useState(false);
@@ -13,11 +13,11 @@ const Home = ({ navigation }) => {
 
   return (
     <SafeAreaView style={portalStyle.container}>
-      <Text>Home Dashboard Screen</Text>
+      <Text>Admin Dashboard Screen</Text>
     </SafeAreaView>
   );
 };
 
-export default Home;
+export default AdminDashboard;
 
 const portalStyle = StyleSheet.create(styles);

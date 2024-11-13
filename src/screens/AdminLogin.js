@@ -4,6 +4,8 @@ import styles from "../styles/styling";
 import { TextInput, Button } from "react-native-paper";
 import {Ionicons} from "@expo/vector-icons"; 
 import ReturnButtons from "../components/returnButtons"; 
+import { supabase } from '../../src/SupaBase/Database';
+import { Alert } from "react-native";
 
 const AdminLogin = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -11,7 +13,7 @@ const AdminLogin = ({ navigation }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoginPressed, setIsLoginPressed] = useState(false);
   const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
-  const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const [isAdminRegisterPressed, setIsAdminRegisterPressed] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const footer = require("../../assets/gradient.png");
 
@@ -33,6 +35,35 @@ const AdminLogin = ({ navigation }) => {
       keyboardDidHideListener.remove();
     };
   }, []);
+
+  
+  const handleLogin = async () => {
+    setIsLoginPressed(true);
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password");
+      setIsLoginPressed(false);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        Alert.alert("Login Failed", error.message);
+      } else {
+        Alert.alert("Success", "You are now logged in!");
+        navigation.navigate("Home"); 
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setIsLoginPressed(false);
+    }
+  };
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -101,7 +132,7 @@ const AdminLogin = ({ navigation }) => {
         <View style={{ alignItems: 'center' }}>
           <Button
             mode="elevated"
-            onPress={() => navigation.navigate("Profile")}
+            onPress={handleLogin}
             onPressIn={() => setIsLoginPressed(true)} 
             onPressOut={() => setIsLoginPressed(false)} 
             labelStyle={{
@@ -133,12 +164,12 @@ const AdminLogin = ({ navigation }) => {
             <View style={{ alignItems: 'center' }}>
               <Button
                 mode="elevated"
-                onPress={() => navigation.navigate("Register")}
-                onPressIn={() => setIsRegisterPressed(true)} 
-                onPressOut={() => setIsRegisterPressed(false)}
+                onPress={() => navigation.navigate("AdminRegister")}
+                onPressIn={() => setIsAdminRegisterPressed(true)} 
+                onPressOut={() => setIsAdminRegisterPressed(false)}
                 labelStyle={{ fontSize: 18, textAlign: 'center', color: 'white', fontFamily: "PoppinsBold" }} 
                 style={{
-                  backgroundColor: isRegisterPressed ? "#83d6f4" : "#1dc5fd",
+                  backgroundColor: isAdminRegisterPressed ? "#83d6f4" : "#1dc5fd",
                   paddingVertical: 7,
                   paddingHorizontal: 5,
                   margin: 10,
