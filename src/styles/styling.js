@@ -57,6 +57,20 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 
+  datePickerContainer: {
+    width: 290,
+    height: 50,
+    borderColor: 'red',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    justifyContent: 'center',
+    marginVertical: 10,
+    marginLeft: 10,
+  },
+
+  
+
   button: {
     fontFamily: 'PoppinsBold',
     fontSize: 20,

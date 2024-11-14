@@ -28,20 +28,23 @@ export default function App() {
   useEffect(() => {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
+      console.log("Session Data:", data); // Check session here
       setSession(data.session);
     };
     getSession();
-
+  
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        console.log("Auth State Change:", session); // Check session on state change
         setSession(session);
       }
     );
-
+  
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, []);
+  
 
   if (!loaded) {
     return null;

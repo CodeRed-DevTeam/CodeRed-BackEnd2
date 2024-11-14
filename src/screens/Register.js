@@ -1,134 +1,98 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, ScrollView, Image, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, ScrollView, Image, View, TouchableOpacity, Alert, Platform } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { TextInput, Button, Checkbox, RadioButton } from "react-native-paper";
-import styles from "../styles/styling";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import ReturnButtons from "../components/returnButtons"; 
+import ReturnButtons from "../components/returnButtons";
+import styles from "../styles/styling";
 import { supabase } from '../../src/SupaBase/Database';
-import { Alert } from "react-native";
 
-
-const Register = ({navigation}) => {
+const Register = ({ navigation }) => {
   const codered = require("../../assets/codered.png");
+  const footer = require("../../assets/gradient.png");
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [currentAddress, setCurrentAddress] = useState("");
   const [country, setCountry] = useState("");
-const [region, setRegion] = useState("");
-const [city, setCity] = useState("");
+  const [region, setRegion] = useState("");
+  const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [checked, setChecked] = useState(false);
   const [isRegisterPressed, setIsRegisterPressed] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
   const [gender, setGender] = useState('');
-  const footer = require("../../assets/gradient.png");
 
-  const [dateOfBirth, setDateOfBirth] = useState("");
-
-  const handleDateChange = (input) => {
-    const cleanedInput = input.replace(/\D/g, '');
-  
-    let formattedInput = '';
-  
-    if (cleanedInput.length >= 2) {
-      formattedInput = cleanedInput.slice(0, 2) + '/';
-    }
-    if (cleanedInput.length >= 4) {
-      formattedInput += cleanedInput.slice(2, 4) + '/';
-    }
-  
-    if (cleanedInput.length >= 6) {
-      formattedInput += cleanedInput.slice(4, 8);
-    } else if (cleanedInput.length > 2) {
-      formattedInput += cleanedInput.slice(2);
-    }
-  
-    if (formattedInput !== dateOfBirth) {
-      setDateOfBirth(formattedInput);
-    }
-  };
+  const [dateOfBirth, setDateOfBirth] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handlePhoneNumberChange = (input) => {
-
-    const numericInput = input.replace(/[^0-9]/g, ''); 
+    const numericInput = input.replace(/[^0-9]/g, '');
     if (numericInput.length <= 10) {
       setPhoneNumber(numericInput);
     }
+  };
+
+  const [selectedDateText, setSelectedDateText] = useState("DATE OF BIRTH"); 
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || dateOfBirth;
+    setShowDatePicker(Platform.OS === 'ios');
+    setDateOfBirth(currentDate);
+    setSelectedDateText(currentDate.toLocaleDateString('en-US')); 
   };
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(prevState => !prevState);
   };
 
-  const toggleConfirmPasswordVisibility = () => {
-    setIsConfirmPasswordVisible(prevState => !prevState);
-  };
 
   const handleRegister = async () => {
-    // Validate form fields
-    if (!firstName || !lastName || !phoneNumber || !currentAddress || !country || !region || !city || !email || !password || !confirmPassword || !gender || !dateOfBirth) {
+    const formattedDate = dateOfBirth.toLocaleDateString('en-US');
+    console.log(firstName, lastName, phoneNumber, country, region, city, email, password, gender, formattedDate);
+  
+    if (!firstName || !lastName || !phoneNumber || !country || !region || !city || !email || !password || !gender || !formattedDate) {
       Alert.alert("Error", "Please fill in all fields.");
       return;
     }
   
-    // Password mismatch validation
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
-      return;
-    }
-  
-    // Check if Terms and Conditions checkbox is checked
     if (!checked) {
       Alert.alert("Error", "Please agree to the Terms and Conditions");
       return;
     }
   
     try {
-      // Attempt to register the user
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { user, error } = await supabase.auth.signUp({ email, password });
   
-      if (error) {
-        Alert.alert("Registration Error", error.message);
-        return;
+      if (error && error.message.includes("Email address cannot be used")) {
+        Alert.alert("Registration Error", "This email address is not authorized. Please try another one.");
       }
-  
-      // Insert the user data into your database
-      const { error: dbError } = await supabase
-        .from('users')
-        .insert([
-          {
-            first_name: firstName,
-            last_name: lastName,
-            phone_number: phoneNumber,
-            address: currentAddress,
-            email,
-            gender,
-            date_of_birth: dateOfBirth,
-          },
-        ]);
+      
+      const { error: dbError } = await supabase.from('users').insert([{
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber,
+        email,
+        gender,
+        date_of_birth: formattedDate,
+      }]);
   
       if (dbError) {
+        console.log("Database error:", dbError); 
         Alert.alert("Database Error", dbError.message);
         return;
       }
   
-      // If registration is successful, navigate to the Login screen
       Alert.alert("Success", "You have successfully registered!");
       navigation.navigate("Login");
     } catch (error) {
+      console.log("Error during registration:", error); 
       Alert.alert("Error", "Something went wrong. Please try again.");
     }
   };
   
-
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -183,8 +147,12 @@ const [city, setCity] = useState("");
                     color="red"
                     uncheckedColor="red"
                     status={gender === 'male' ? 'checked' : 'unchecked'}
-                    onPress={() => setGender('male')}
-                />
+                    onPress={() => {
+                      console.log('Selected gender:', 'male');
+                      setGender('male');
+                    }}
+                  />
+                
                 <Text style={{ fontFamily: "Poppins", color: 'black',  }}>MALE</Text>
 
                 <RadioButton
@@ -192,31 +160,32 @@ const [city, setCity] = useState("");
                     color="red"
                     uncheckedColor="red"
                     status={gender === 'female' ? 'checked' : 'unchecked'}
-                    onPress={() => setGender('female')}
-                />
+                    onPress={() => {
+                      console.log('Selected gender:', 'female');
+                      setGender('female');
+                    }}
+                  />
+                
                 <Text style={{ fontFamily: "Poppins", color: 'black' }}>FEMALE</Text>
                 </View>
-        <View>
-        <TextInput
-            label="DATE OF BIRTH"
-            value={dateOfBirth}
-            mode="outlined" // Change this to "flat" if you prefer a flat style
-            activeOutlineColor="red"
-            outlineColor="red"
-            textColor="red"
-            onChangeText={handleDateChange}
-            style={{
-                width: 290, // Adjust the width
-                height: 50, // Adjust the height
-                fontFamily: "PoppinsBold",
-                paddingHorizontal: 10, // Adjust horizontal padding
-                borderRadius: 5, // Optional: for rounded corners
-                marginLeft: 10
-            }}
-            maxLength={10}
-            keyboardType="numeric" // Ensure that the keyboard is numeric
-            placeholder="MM/DD/YYYY" // Placeholder text
+            <View>
+              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <View style={registerStyle.datePickerContainer}>
+              <Text style={[registerStyle.dateText, { textTransform: 'uppercase', fontFamily: 'Poppins', color: 'black' }]}>
+              {selectedDateText} 
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={dateOfBirth}
+              mode="date"
+              display="calendar"
+              onChange={handleDateChange}
+              maximumDate={new Date()}
             />
+          )}
 
             <TextInput
               label="+63 | PHONE NUMBER"

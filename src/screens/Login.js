@@ -14,7 +14,7 @@ const Login = ({ navigation }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoginPressed, setIsLoginPressed] = useState(false);
   const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
-  const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const [isRegisterPressed, setIsRegisterPressed] = useState(false)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const footer = require("../../assets/gradient.png");
 
@@ -36,7 +36,7 @@ const Login = ({ navigation }) => {
       keyboardDidHideListener.remove();
     };
   }, []);
-
+  
   const handleLogin = async () => {
     setIsLoginPressed(true);
     if (!email || !password) {
@@ -44,20 +44,24 @@ const Login = ({ navigation }) => {
       setIsLoginPressed(false);
       return;
     }
+  
     try {
+      console.log("Logging in with:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
+  
       if (error) {
+        console.log('Supabase Error:', error.message);  
         Alert.alert("Login Failed", error.message);
       } else {
+        console.log('Login Data:', data);  
         Alert.alert("Success", "You are now logged in!");
-        navigation.navigate("Home"); 
+        navigation.navigate("Home");
       }
     } catch (error) {
-      console.error("Login Error:", error);
+      console.error("Login Error:", error); 
       Alert.alert("Error", "Something went wrong. Please try again.");
     } finally {
       setIsLoginPressed(false);
@@ -155,8 +159,6 @@ const Login = ({ navigation }) => {
             LOG IN
           </Button>
         </View>
-
-        
         {!isKeyboardVisible && (
           <>
             <View style={{ height: 0.5, width: "80%", alignSelf: 'center', backgroundColor: 'white', marginVertical: 2 }} />
