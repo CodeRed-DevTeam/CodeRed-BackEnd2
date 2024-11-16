@@ -7,6 +7,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import ReturnButtons from "../components/returnButtons";
 import styles from "../styles/styling";
 import { supabase } from '../../src/SupaBase/Database';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { auth } from '../../src/SupaBase/FireBase'; 
+
 
 const Register = ({ navigation }) => {
   const codered = require("../../assets/codered.png");
@@ -62,13 +65,14 @@ const Register = ({ navigation }) => {
       Alert.alert("Error", "Please agree to the Terms and Conditions");
       return;
     }
-  
     try {
-      const { user, error } = await supabase.auth.signUp({ email, password });
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
   
-      if (error && error.message.includes("Email address cannot be used")) {
-        Alert.alert("Registration Error", "This email address is not authorized. Please try another one.");
-      }
+      // Send email verification
+      await sendEmailVerification(user);
+      Alert.alert("Success", "Registration successful! Please verify your email to log in.");
       
       const { error: dbError } = await supabase.from('users').insert([{
         first_name: firstName,
@@ -117,7 +121,7 @@ const Register = ({ navigation }) => {
             Join Code Red to help save lives by donating blood or connecting donors with those in urgent need!
             </Text>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <TextInput
                     label="FIRST NAME"
                     value={firstName}

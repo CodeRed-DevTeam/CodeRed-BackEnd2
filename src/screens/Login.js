@@ -6,6 +6,8 @@ import {Ionicons} from "@expo/vector-icons";
 import ReturnButtons from "../components/returnButtons"; 
 import { supabase } from '../../src/SupaBase/Database';
 import { Alert } from "react-native";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../src/SupaBase/FireBase'; 
 
 
 const Login = ({ navigation }) => {
@@ -14,7 +16,7 @@ const Login = ({ navigation }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoginPressed, setIsLoginPressed] = useState(false);
   const [isForgotPasswordPressed, setIsForgotPasswordPressed] = useState(false);
-  const [isRegisterPressed, setIsRegisterPressed] = useState(false);
+  const [isRegisterPressed, setIsRegisterPressed] = useState(false)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const footer = require("../../assets/gradient.png");
 
@@ -36,7 +38,7 @@ const Login = ({ navigation }) => {
       keyboardDidHideListener.remove();
     };
   }, []);
-
+  
   const handleLogin = async () => {
     setIsLoginPressed(true);
     if (!email || !password) {
@@ -44,25 +46,52 @@ const Login = ({ navigation }) => {
       setIsLoginPressed(false);
       return;
     }
+  
     try {
+<<<<<<< HEAD
+      console.log("Attempting to log in with", email, password); 
+      await signInWithEmailAndPassword(auth, email, password);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error); 
+  
+      let errorMessage;
+  
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Incorrect email. Please check your email or register if you don\'t have an account.';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else {
+        errorMessage = 'Incorrect Email or Password.';
+      }
+  
+      Alert.alert('Login Failed', errorMessage); 
+=======
+      console.log("Logging in with:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
+  
       if (error) {
+        console.log('Supabase Error:', error.message);  
         Alert.alert("Login Failed", error.message);
       } else {
+        console.log('Login Data:', data);  
         Alert.alert("Success", "You are now logged in!");
-        navigation.navigate("Home"); 
+        navigation.navigate("Home");
       }
     } catch (error) {
-      console.error("Login Error:", error);
+      console.error("Login Error:", error); 
       Alert.alert("Error", "Something went wrong. Please try again.");
+>>>>>>> 69fa1f2e0d4f4774958e7760c9da2e61c2652e41
     } finally {
-      setIsLoginPressed(false);
+      setLoading(false); 
     }
   };
+  
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -155,8 +184,6 @@ const Login = ({ navigation }) => {
             LOG IN
           </Button>
         </View>
-
-        
         {!isKeyboardVisible && (
           <>
             <View style={{ height: 0.5, width: "80%", alignSelf: 'center', backgroundColor: 'white', marginVertical: 2 }} />
